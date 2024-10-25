@@ -23,8 +23,12 @@ func NewUserRepository(ctx context.Context) UserRepository {
 	}
 }
 
-func (r *userRepositoryImpl) Save(ctx context.Context, user *repoModel.User) (err error) {
-	err = r.gormDB.WithContext(ctx).Save(user).Error
+func (r *userRepositoryImpl) BeginTx() *gorm.DB {
+	return r.gormDB.Begin()
+}
+
+func (r *userRepositoryImpl) Save(ctx context.Context, tx *gorm.DB, user *repoModel.User) (err error) {
+	err = tx.WithContext(ctx).Save(user).Error
 	if err != nil {
 		log.Error(ctx, err, "error on r.gormDB.WithContext(ctx).Save(user)")
 		return
@@ -32,15 +36,15 @@ func (r *userRepositoryImpl) Save(ctx context.Context, user *repoModel.User) (er
 	return
 }
 
-func (r *userRepositoryImpl) FindById(ctx context.Context, id uuid.UUID) (user *repoModel.User, err error) {
-	user = &repoModel.User{ID: id}
+func (r *userRepositoryImpl) FindById(ctx context.Context, userId uuid.UUID) (user *repoModel.User, err error) {
+	user = &repoModel.User{ID: userId}
 	err = r.gormDB.WithContext(ctx).Find(user).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		user = nil
 		err = nil
 	} else if err != nil {
 		user = nil
-		log.Errorf(ctx, err, "error on r.gormDB.WithContext(ctx).Find(user), id=%s", id.String())
+		log.Errorf(ctx, err, "error on r.gormDB.WithContext(ctx).Find(user), userId=%s", userId.String())
 	} else if user.PhoneNumber == str.Empty {
 		user = nil
 	}

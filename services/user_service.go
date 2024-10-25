@@ -5,27 +5,38 @@ import (
 	"github.com/google/uuid"
 	"github.com/rosaekapratama/go-starter/constant/location"
 	"github.com/rosaekapratama/go-starter/constant/str"
+	"github.com/rosaekapratama/go-starter/database"
 	"github.com/rosaekapratama/go-starter/log"
 	"github.com/rosaekapratama/go-starter/response"
 	"github.com/rosaekapratama/go-starter/utils"
 	"github.com/rosaekapratama/mnc-go-test2/constants"
 	"github.com/rosaekapratama/mnc-go-test2/crypto"
-	"github.com/rosaekapratama/mnc-go-test2/models/repo"
-	"github.com/rosaekapratama/mnc-go-test2/models/rest"
+	repoModel "github.com/rosaekapratama/mnc-go-test2/models/repo"
+	restModel "github.com/rosaekapratama/mnc-go-test2/models/rest"
 	"github.com/rosaekapratama/mnc-go-test2/repositories"
 	"strings"
 	"time"
 )
 
-func NewUserService(_ context.Context, secret string, userRepository repositories.UserRepository) UserService {
+func NewUserService(_ context.Context, secret string, userRepository repositories.UserRepository, accountRepository repositories.AccountRepository) UserService {
 	return &userServiceImpl{
-		secret:         secret,
-		userRepository: userRepository,
+		secret:            secret,
+		userRepository:    userRepository,
+		accountRepository: accountRepository,
 	}
 }
 
-func (s *userServiceImpl) Register(ctx context.Context, req *rest.RegisterRequest) (res *rest.BaseResponse[*rest.RegisterResponse], err error) {
-	res = &rest.BaseResponse[*rest.RegisterResponse]{}
+func (s *userServiceImpl) Register(ctx context.Context, req *restModel.RegisterRequest) (res *restModel.BaseResponse[*restModel.RegisterResponse], err error) {
+	res = &restModel.BaseResponse[*restModel.RegisterResponse]{}
+
+	// Init tx
+	tx, err := database.Manager.Begin(ctx, "playground")
+	if err != nil {
+		res.Message = response.GeneralError.Description()
+		return
+	}
+	defer tx.Rollback()
+
 	if req.PhoneNumber == str.Empty {
 		res.Message = "Phone number is empty"
 		return
@@ -66,7 +77,7 @@ func (s *userServiceImpl) Register(ctx context.Context, req *rest.RegisterReques
 		address = utils.StringP(strings.TrimSpace(req.Address))
 	}
 
-	user = &repo.User{
+	user = &repoModel.User{
 		ID:          uuid.New(),
 		FirstName:   firstName,
 		LastName:    lastName,
@@ -75,16 +86,18 @@ func (s *userServiceImpl) Register(ctx context.Context, req *rest.RegisterReques
 		Pin:         crypto.Hash(req.Pin),
 		CreatedDt:   time.Now().In(location.AsiaJakarta),
 	}
-	err = s.userRepository.Save(ctx, user)
+
+	// Create user
+	err = s.userRepository.Save(ctx, tx, user)
 	if err != nil {
 		log.Error(ctx, err, "error on s.userRepository.Save")
 		res.Message = response.GeneralError.Description()
 		return
 	}
 
-	res = &rest.BaseResponse[*rest.RegisterResponse]{
+	res = &restModel.BaseResponse[*restModel.RegisterResponse]{
 		Status: "SUCCESS",
-		Result: &rest.RegisterResponse{
+		Result: &restModel.RegisterResponse{
 			UserID:      user.ID,
 			FirstName:   utils.PString(user.FirstName),
 			LastName:    utils.PString(user.LastName),
@@ -94,11 +107,35 @@ func (s *userServiceImpl) Register(ctx context.Context, req *rest.RegisterReques
 		},
 	}
 
+	// Create saving account
+	err = s.accountRepository.CreateSaving(ctx, tx, &repoModel.Account{
+		ID:        uuid.New(),
+		UserID:    user.ID,
+		Type:      "SAVING",
+		Balance:   0,
+		CreatedDt: time.Now().In(location.AsiaJakarta),
+	})
+	if err != nil {
+		log.Error(ctx, err, "error on s.accountRepository.CreateSaving")
+		res.Message = response.GeneralError.Description()
+		return
+	}
+
+	tx.Commit()
 	return
 }
 
-func (s *userServiceImpl) Login(ctx context.Context, req *rest.LoginRequest) (res *rest.BaseResponse[*rest.LoginResponse], err error) {
-	res = &rest.BaseResponse[*rest.LoginResponse]{}
+func (s *userServiceImpl) Login(ctx context.Context, req *restModel.LoginRequest) (res *restModel.BaseResponse[*restModel.LoginResponse], err error) {
+	res = &restModel.BaseResponse[*restModel.LoginResponse]{}
+
+	// Init tx
+	tx, err := database.Manager.Begin(ctx, "playground")
+	if err != nil {
+		res.Message = response.GeneralError.Description()
+		return
+	}
+	defer tx.Rollback()
+
 	if req.PhoneNumber == str.Empty {
 		res.Message = "Phone number is empty"
 		return
@@ -135,10 +172,8 @@ func (s *userServiceImpl) Login(ctx context.Context, req *rest.LoginRequest) (re
 		}
 
 		updatedDt := time.Now().In(location.AsiaJakarta)
-		user.AccessToken = accessToken
-		user.RefreshToken = refreshToken
 		user.UpdatedDt = &updatedDt
-		err = s.userRepository.Save(ctx, user)
+		err = s.userRepository.Save(ctx, tx, user)
 		if err != nil {
 			log.Error(ctx, err)
 			res.Message = response.GeneralError.Description()
@@ -146,10 +181,12 @@ func (s *userServiceImpl) Login(ctx context.Context, req *rest.LoginRequest) (re
 		}
 
 		res.Status = "SUCCESS"
-		res.Result = &rest.LoginResponse{
+		res.Result = &restModel.LoginResponse{
 			AccessToken:  accessToken,
 			RefreshToken: refreshToken,
 		}
+
+		tx.Commit()
 		return
 	}
 

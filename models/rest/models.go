@@ -36,3 +36,15 @@ type LoginResponse struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 }
+
+type TopupRequest struct {
+	Amount float64 `json:"amount"` // Representing the 'amount' field
+}
+
+type TopUpResponse struct {
+	TopupID       string  `json:"top_up_id"`      // Representing the 'top_up_id' field as a string (UUID as a string)
+	AmountTopup   float64 `json:"amount_top_up"`  // Representing the 'amount_top_up' field as an integer
+	BalanceBefore float64 `json:"balance_before"` // Representing the 'balance_before' field
+	BalanceAfter  float64 `json:"balance_after"`  // Representing the 'balance_after' field
+	CreatedDate   string  `json:"created_date"`   // Representing the 'created_date' field as a timestamp
+}

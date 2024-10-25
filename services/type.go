@@ -11,7 +11,17 @@ type UserService interface {
 	Login(ctx context.Context, req *rest.LoginRequest) (res *rest.BaseResponse[*rest.LoginResponse], err error)
 }
 
+type AccountService interface {
+	Topup(ctx context.Context, req *rest.TopupRequest) (res *rest.BaseResponse[*rest.TopUpResponse], err error)
+}
+
 type userServiceImpl struct {
-	secret         string
-	userRepository repositories.UserRepository
+	secret            string
+	userRepository    repositories.UserRepository
+	accountRepository repositories.AccountRepository
+}
+
+type accountServiceImpl struct {
+	accountRepository     repositories.AccountRepository
+	transactionRepository repositories.TransactionRepository
 }

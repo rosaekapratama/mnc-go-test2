@@ -2,6 +2,7 @@ package crypto
 
 import (
 	"context"
+	"fmt"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/rosaekapratama/go-starter/log"
 	"time"
@@ -16,7 +17,7 @@ func GenerateTokens(ctx context.Context, sub string, phoneNumber, secret string)
 	refreshTokenExpiry := time.Now().Add(7 * 24 * time.Hour) // 7 days for refresh token
 
 	// Create claims for access token
-	accessClaims := Claims{
+	accessClaims := Claim{
 		Sub:         sub,
 		PhoneNumber: phoneNumber,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -25,7 +26,7 @@ func GenerateTokens(ctx context.Context, sub string, phoneNumber, secret string)
 	}
 
 	// Create claims for refresh token (you can omit sensitive data like pin here)
-	refreshClaims := Claims{
+	refreshClaims := Claim{
 		Sub:         sub,
 		PhoneNumber: phoneNumber,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -50,4 +51,25 @@ func GenerateTokens(ctx context.Context, sub string, phoneNumber, secret string)
 	}
 
 	return accessTokenString, refreshTokenString, nil
+}
+
+func ExtractClaim(ctx context.Context, secret string, tokenStr string) (claim *Claim, err error) {
+	// Parse the token
+	token, err := jwt.ParseWithClaims(tokenStr, &Claim{}, func(token *jwt.Token) (interface{}, error) {
+		// Validate the signing method and return the secret key
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(secret), nil
+	})
+	if err != nil {
+		log.Error(ctx, err)
+		return
+	}
+
+	// Extract the claims
+	if claim, ok := token.Claims.(*Claim); ok && token.Valid {
+		return claim, nil
+	}
+	return
 }

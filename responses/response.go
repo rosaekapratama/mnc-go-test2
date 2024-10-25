@@ -7,20 +7,20 @@ import (
 )
 
 const (
-	PaymentAmountMustBeGreaterThanZero response.Response = iota + 100
+	AccountNotFound response.Response = iota + 100
 )
 
 var (
 	descriptions = map[response.Response]string{
-		PaymentAmountMustBeGreaterThanZero: "Payment amount must be greater than zero",
+		AccountNotFound: "Account not found",
 	}
 
 	httpStatusCodes = map[response.Response]int{
-		PaymentAmountMustBeGreaterThanZero: http.StatusBadRequest,
+		AccountNotFound: http.StatusOK,
 	}
 
 	otelCodes = map[response.Response]codes.Code{
-		PaymentAmountMustBeGreaterThanZero: codes.Ok,
+		AccountNotFound: codes.Ok,
 	}
 )
 

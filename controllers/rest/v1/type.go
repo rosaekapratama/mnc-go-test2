@@ -10,6 +10,14 @@ type UserRestController interface {
 	Login(c *gin.Context)
 }
 
+type AccountRestController interface {
+	Topup(c *gin.Context)
+}
+
 type userRestControllerImpl struct {
 	userService services.UserService
+}
+
+type accountRestControllerImpl struct {
+	accountService services.AccountService
 }
