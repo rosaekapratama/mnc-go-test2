@@ -1,0 +1,28 @@
+---
+app:
+  name: mnc-go-test2
+  mode: debug # debug/release/test, for production use release
+
+transport:
+  server:
+    rest:
+      logging:
+        stdout: true # Show incoming and outgoing message globally, default is false
+      port:
+        http: 9092
+
+log:
+  # Valid level are
+  # trace, debug, info, warn, error, fatal, panic.
+  level: info
+
+database:
+  playground:
+    driver: postgresql
+    address: localhost
+    database: playground
+    username: postgres
+    password: 2628
+
+google:
+  disabled: true
