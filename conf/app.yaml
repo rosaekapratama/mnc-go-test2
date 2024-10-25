@@ -2,6 +2,7 @@
 app:
   name: mnc-go-test2
   mode: debug # debug/release/test, for production use release
+  secret: RUYMy0o8Sj
 
 transport:
   server:

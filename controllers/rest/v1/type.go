@@ -7,6 +7,7 @@ import (
 
 type UserRestController interface {
 	Register(c *gin.Context)
+	Login(c *gin.Context)
 }
 
 type userRestControllerImpl struct {

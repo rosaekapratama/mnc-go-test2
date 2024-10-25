@@ -8,8 +8,10 @@ import (
 
 type UserService interface {
 	Register(ctx context.Context, req *rest.RegisterRequest) (res *rest.BaseResponse[*rest.RegisterResponse], err error)
+	Login(ctx context.Context, req *rest.LoginRequest) (res *rest.BaseResponse[*rest.LoginResponse], err error)
 }
 
 type userServiceImpl struct {
+	secret         string
 	userRepository repositories.UserRepository
 }

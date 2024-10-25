@@ -26,3 +26,13 @@ type RegisterResponse struct {
 	Address     string    `json:"address"`      // Address
 	CreatedDate string    `json:"created_date"` // Created date
 }
+
+type LoginRequest struct {
+	PhoneNumber string `json:"phone_number"` // Phone number
+	Pin         string `json:"pin"`
+}
+
+type LoginResponse struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+}

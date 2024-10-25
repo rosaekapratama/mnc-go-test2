@@ -44,3 +44,32 @@ func (ctrl *userRestControllerImpl) Register(c *gin.Context) {
 	restserver.SetRawResponse(w, response.Success)
 	c.JSON(response.Success.HttpStatusCode(), res)
 }
+
+func (ctrl *userRestControllerImpl) Login(c *gin.Context) {
+	ctx := c.Request.Context()
+	w := c.Writer
+
+	req := &rest.LoginRequest{}
+	err := c.BindJSON(req)
+	if err != nil {
+		log.Error(ctx, err)
+		restserver.SetRawResponse(w, response.GeneralError)
+		c.JSON(response.GeneralError.HttpStatusCode(), &rest.BaseResponse[*rest.RegisterResponse]{
+			Message: response.GeneralError.Description(),
+		})
+		return
+	}
+
+	res, err := ctrl.userService.Login(ctx, req)
+	if err != nil {
+		log.Error(ctx, err)
+		restserver.SetRawResponse(w, response.GeneralError)
+		c.JSON(response.GeneralError.HttpStatusCode(), &rest.BaseResponse[*rest.RegisterResponse]{
+			Message: response.GeneralError.Description(),
+		})
+		return
+	}
+
+	restserver.SetRawResponse(w, response.Success)
+	c.JSON(response.Success.HttpStatusCode(), res)
+}

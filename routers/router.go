@@ -7,4 +7,5 @@ import (
 
 func Init(userRestController v1.UserRestController) {
 	restserver.Router.POST("/register", userRestController.Register)
+	restserver.Router.POST("/login", userRestController.Login)
 }

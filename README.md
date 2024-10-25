@@ -9,6 +9,8 @@ CREATE TABLE public.users (
 	phone_number varchar NULL,
 	address varchar NULL,
 	pin varchar NOT NULL,
+	access_token varchar NULL,
+	refresh_token varchar NULL,
 	created_dt timestamptz NOT NULL,
 	updated_dt timestamptz NULL,
 	CONSTRAINT users_phone_no_un UNIQUE (phone_number),
@@ -37,6 +39,16 @@ curl --location 'http://localhost:9092/register' \
     "last_name": "Saputro",
     "phone_number": "0811255501",
     "address": "Jl. Kebon Sirih No. 1",
+    "pin": "123456"
+}'
+```
+
+Login
+```
+curl --location 'http://localhost:9092/login' \
+--header 'Content-Type: application/json' \
+--data '{
+    "phone_number": "0811255501",
     "pin": "123456"
 }'
 ```

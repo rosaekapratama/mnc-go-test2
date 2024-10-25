@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"errors"
+	"github.com/google/uuid"
 	"github.com/rosaekapratama/go-starter/constant/str"
 	"github.com/rosaekapratama/go-starter/database"
 	"github.com/rosaekapratama/go-starter/log"
@@ -27,6 +28,21 @@ func (r *userRepositoryImpl) Save(ctx context.Context, user *repoModel.User) (er
 	if err != nil {
 		log.Error(ctx, err, "error on r.gormDB.WithContext(ctx).Save(user)")
 		return
+	}
+	return
+}
+
+func (r *userRepositoryImpl) FindById(ctx context.Context, id uuid.UUID) (user *repoModel.User, err error) {
+	user = &repoModel.User{ID: id}
+	err = r.gormDB.WithContext(ctx).Find(user).Error
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		user = nil
+		err = nil
+	} else if err != nil {
+		user = nil
+		log.Errorf(ctx, err, "error on r.gormDB.WithContext(ctx).Find(user), id=%s", id.String())
+	} else if user.PhoneNumber == str.Empty {
+		user = nil
 	}
 	return
 }
