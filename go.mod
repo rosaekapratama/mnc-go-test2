@@ -6,7 +6,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/uuid v1.6.0
-	github.com/rosaekapratama/go-starter v1.0.0
+	github.com/rosaekapratama/go-starter v1.0.1
 	go.opentelemetry.io/otel v1.24.0
 	gorm.io/gorm v1.25.8
 )
@@ -125,5 +125,3 @@ require (
 	gorm.io/driver/postgres v1.5.7 // indirect
 	gorm.io/driver/sqlserver v1.5.3 // indirect
 )
-
-replace github.com/rosaekapratama/go-starter => ../go-starter
