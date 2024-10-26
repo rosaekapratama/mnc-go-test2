@@ -40,8 +40,9 @@ func (r *accountRepositoryImpl) FindById(ctx context.Context, accountId uuid.UUI
 }
 
 func (r *accountRepositoryImpl) FindSavingByUserId(ctx context.Context, userId uuid.UUID) (account *repoModel.Account, err error) {
-	account = &repoModel.Account{UserID: userId, Type: "SAVING"}
-	err = r.gormDB.WithContext(ctx).Find(account).Error
+	account = &repoModel.Account{}
+	where := &repoModel.Account{UserID: userId, Type: "SAVING"}
+	err = r.gormDB.WithContext(ctx).Where(where, "user_id").Find(account).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		account = nil
 		err = nil
@@ -63,7 +64,7 @@ func (r *accountRepositoryImpl) CreateSaving(ctx context.Context, tx *gorm.DB, a
 	return
 }
 
-func (r *accountRepositoryImpl) Topup(ctx context.Context, tx *gorm.DB, accountId uuid.UUID, amount float64) (account *repoModel.Account, err error) {
+func (r *accountRepositoryImpl) Credit(ctx context.Context, tx *gorm.DB, accountId uuid.UUID, amount float64) (account *repoModel.Account, err error) {
 	account, err = r.FindById(ctx, accountId)
 	if err != nil {
 		log.Error(ctx, err)
@@ -76,6 +77,32 @@ func (r *accountRepositoryImpl) Topup(ctx context.Context, tx *gorm.DB, accountI
 
 	now := time.Now().In(location.AsiaJakarta)
 	account.Balance += amount
+	account.UpdateDt = &now
+	err = tx.WithContext(ctx).Save(account).Error
+	if err != nil {
+		log.Error(ctx, err, "error on tx.WithContext(ctx).Save(account)")
+		return
+	}
+	return
+}
+
+func (r *accountRepositoryImpl) Debit(ctx context.Context, tx *gorm.DB, accountId uuid.UUID, amount float64) (account *repoModel.Account, err error) {
+	account, err = r.FindById(ctx, accountId)
+	if err != nil {
+		log.Error(ctx, err)
+		return
+	}
+
+	if account == nil {
+		return
+	}
+
+	if account.Balance < amount {
+		return account, errors.New("not enough balance")
+	}
+
+	now := time.Now().In(location.AsiaJakarta)
+	account.Balance -= amount
 	account.UpdateDt = &now
 	err = tx.WithContext(ctx).Save(account).Error
 	if err != nil {

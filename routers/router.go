@@ -19,14 +19,20 @@ import (
 var (
 	protectedPath = []string{
 		"/topup",
+		"/pay",
+		"/transfer",
+		"/transactions",
 	}
 )
 
-func Init(userRestController v1.UserRestController, accountRestController v1.AccountRestController) {
+func Init(userRestController v1.UserRestController, financeRestController v1.FinanceRestController) {
 	restserver.Router.Use(validateToken)
 	restserver.Router.POST("/register", userRestController.Register)
 	restserver.Router.POST("/login", userRestController.Login)
-	restserver.Router.POST("/topup", accountRestController.Topup)
+	restserver.Router.POST("/topup", financeRestController.Topup)
+	restserver.Router.POST("/pay", financeRestController.Payment)
+	restserver.Router.POST("/transfer", financeRestController.Transfer)
+	restserver.Router.GET("/transactions", financeRestController.Transactions)
 }
 
 func validateToken(c *gin.Context) {

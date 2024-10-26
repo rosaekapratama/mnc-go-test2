@@ -18,11 +18,13 @@ type AccountRepository interface {
 	FindById(ctx context.Context, accountId uuid.UUID) (account *repo.Account, err error)
 	FindSavingByUserId(ctx context.Context, userId uuid.UUID) (account *repo.Account, err error)
 	CreateSaving(ctx context.Context, tx *gorm.DB, account *repo.Account) (err error)
-	Topup(ctx context.Context, tx *gorm.DB, accountId uuid.UUID, amount float64) (account *repo.Account, err error)
+	Credit(ctx context.Context, tx *gorm.DB, accountId uuid.UUID, amount float64) (account *repo.Account, err error)
+	Debit(ctx context.Context, tx *gorm.DB, accountId uuid.UUID, amount float64) (account *repo.Account, err error)
 }
 
 type TransactionRepository interface {
-	Topup(ctx context.Context, tx *gorm.DB, transaction *repo.Transaction) (err error)
+	FindAllByUserId(ctx context.Context, userId uuid.UUID) (transactionList []*repo.TransactionDetail, err error)
+	Save(ctx context.Context, tx *gorm.DB, transaction *repo.Transaction) (err error)
 }
 
 type userRepositoryImpl struct {

@@ -2,31 +2,27 @@ package repositories
 
 const (
 	// Query to calculate the outstanding balance
-	queryGetOutstanding = `
-		SELECT 
-			COALESCE(
-				SUM(installment_payment_amount) - 
-				(SELECT COALESCE(SUM(payment_amount), 0) FROM payments WHERE loan_id = ?), 
-				0
-			) AS outstanding
-		FROM 
-			billings
-		WHERE 
-			loan_id = ?;
+	queryFindAllTransactionByUserId = `
+SELECT 
+    t.id,
+    u.id AS user_id,
+    t.type AS transaction_type,
+    t.status,
+    t.cr,
+    t.amount,
+    t.remark AS remarks,
+    t.balance_before,
+    t.balance_after,
+    t.created_dt
+FROM 
+    public.transactions t
+JOIN 
+    public.accounts a ON t.account_id = a.id
+JOIN 
+    public.users u ON a.user_id = u.id
+WHERE
+    u.id = ?
+ORDER BY
+    t.created_dt DESC;
 `
-
-	// Query to check for delinquency
-	queryIsDelinquent = `
-		SELECT EXISTS (
-			SELECT 1
-			FROM billings b
-			LEFT JOIN payments p ON b.loan_id = p.loan_id
-			WHERE b.loan_id = ?
-			  AND (
-				  p.payment_dt IS NULL OR 
-				  (p.payment_dt < (?::timestamptz - INTERVAL '2 weeks') AND b.due_dt < ?::timestamptz)
-			  )
-			  AND b.due_dt < (?::timestamptz - INTERVAL '1 week')  -- This checks if the due date is outside the first week
-		) AS delinquent;
-	`
 )

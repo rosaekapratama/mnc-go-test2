@@ -11,6 +11,8 @@ transport:
         stdout: true # Show incoming and outgoing message globally, default is false
       port:
         http: 9092
+    grpc:
+      disabled: true
 
 log:
   # Valid level are

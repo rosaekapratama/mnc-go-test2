@@ -11,8 +11,11 @@ type UserService interface {
 	Login(ctx context.Context, req *rest.LoginRequest) (res *rest.BaseResponse[*rest.LoginResponse], err error)
 }
 
-type AccountService interface {
+type FinanceService interface {
 	Topup(ctx context.Context, req *rest.TopupRequest) (res *rest.BaseResponse[*rest.TopUpResponse], err error)
+	Payment(ctx context.Context, req *rest.PaymentRequest) (res *rest.BaseResponse[*rest.PaymentResponse], err error)
+	Transfer(ctx context.Context, req *rest.TransferRequest) (res *rest.BaseResponse[*rest.TransferResponse], err error)
+	FindAllTransaction(ctx context.Context) (res *rest.BaseResponse[*[]*rest.TransactionDetailResponse], err error)
 }
 
 type userServiceImpl struct {
@@ -21,7 +24,7 @@ type userServiceImpl struct {
 	accountRepository repositories.AccountRepository
 }
 
-type accountServiceImpl struct {
+type financeServiceImpl struct {
 	accountRepository     repositories.AccountRepository
 	transactionRepository repositories.TransactionRepository
 }

@@ -10,14 +10,17 @@ type UserRestController interface {
 	Login(c *gin.Context)
 }
 
-type AccountRestController interface {
+type FinanceRestController interface {
 	Topup(c *gin.Context)
+	Payment(c *gin.Context)
+	Transfer(c *gin.Context)
+	Transactions(c *gin.Context)
 }
 
 type userRestControllerImpl struct {
 	userService services.UserService
 }
 
-type accountRestControllerImpl struct {
-	accountService services.AccountService
+type financeRestControllerImpl struct {
+	financeService services.FinanceService
 }

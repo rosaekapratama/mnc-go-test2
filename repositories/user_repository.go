@@ -53,7 +53,8 @@ func (r *userRepositoryImpl) FindById(ctx context.Context, userId uuid.UUID) (us
 
 func (r *userRepositoryImpl) FindByPhoneNo(ctx context.Context, phoneNo string) (user *repoModel.User, err error) {
 	user = &repoModel.User{}
-	err = r.gormDB.WithContext(ctx).Find(user, "phone_number = ?", phoneNo).Error
+	where := &repoModel.User{PhoneNumber: phoneNo}
+	err = r.gormDB.WithContext(ctx).Where(where, "phone_number").Find(user, "phone_number = ?", phoneNo).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		user = nil
 		err = nil
