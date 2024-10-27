@@ -4,7 +4,9 @@
 ```
 Having a queue task that will transfer money to another user (bonus point).
 ```
-Above request is contradictive with the requested API spec for transfer especially the response, cause when we are using queue then the process will become async.
+Above request is contradictive with the requested API spec for transfer especially the response, cause when we are using queue, then the process will become async.
+
+We can block the main thread process to wait async response via chan, but i don't think it's a good design.
 
 ## Pre-Requisite
 ### 1. Initiate tables

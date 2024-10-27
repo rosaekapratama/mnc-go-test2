@@ -1,0 +1,19 @@
+filename: "mock_{{.InterfaceName}}.go"
+dir: "mocks/{{.InterfaceDirRelative}}"
+mockname: "Mock{{.InterfaceName}}"
+outpkg: "{{.PackageName}}"
+with-expecter: True
+packages:
+  github.com/rosaekapratama/mnc-go-test2/repositories:
+    interfaces:
+      UserRepository:
+      AccountRepository:
+      TransactionRepository:
+  github.com/rosaekapratama/mnc-go-test2/services:
+    interfaces:
+      UserService:
+      FinanceService:
+  github.com/rosaekapratama/mnc-go-test2/controllers/rest/v1:
+    interfaces:
+      UserRestController:
+      FinanceRestController:

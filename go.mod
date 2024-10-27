@@ -3,10 +3,12 @@ module github.com/rosaekapratama/mnc-go-test2
 go 1.23.2
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/gin-gonic/gin v1.9.1
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/uuid v1.6.0
-	github.com/rosaekapratama/go-starter v1.0.1
+	github.com/rosaekapratama/go-starter v1.0.3
+	github.com/stretchr/testify v1.9.0
 	go.opentelemetry.io/otel v1.24.0
 	gorm.io/gorm v1.25.8
 )
@@ -86,7 +88,6 @@ require (
 	github.com/redis/go-redis/v9 v9.5.1 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
-	github.com/stretchr/testify v1.9.0 // indirect
 	github.com/tiaguinho/gosoap v1.4.4 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
